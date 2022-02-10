@@ -1,5 +1,6 @@
 from discord.ext import commands
 import os
+from './function' import write_message
 
 bot = commands.Bot(command_prefix='~')
 my_secret = os.environ['token']
@@ -17,15 +18,16 @@ async def on_message(message):
 #~write <channel name> <message>
 @bot.command()
 async def write(context, *args):
-  #if not permission.hasPermission(ctx.author, permission:PERMISSION_NAME):
-    #return
+
+  response = write_message(context, *args)
+
+  #TODO:
 
   message = str(context.message.content).split()
+
   if not len(message) > 2:
     await context.channel.send(f"There is no message.")
     return
-
-  print(str(context.author.roles))
 
   channel = None
   for _channel in context.guild.channels:
@@ -38,6 +40,11 @@ async def write(context, *args):
     return
 
   await channel.send(" ".join(message[2:]))
+
+
+@bot.command()
+async def play(context, *args):
+  
 
 
 bot.run(my_secret)
