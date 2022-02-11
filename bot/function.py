@@ -1,5 +1,3 @@
-import youtube_dl as yt
-
 async def write_message(context, *args):
     message = str(context.message.content).split()
 
@@ -18,6 +16,3 @@ async def write_message(context, *args):
         return
 
     await channel.send(" ".join(message[2:]))
-
-async def download_song(url):
-    pass
