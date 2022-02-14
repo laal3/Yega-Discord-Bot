@@ -83,7 +83,7 @@ class Music(bot):
             #TODO: Message
         else:
             #TODO: Messgae
-
+            pass
             
     def disconnect():
         self.voice_client.stop()

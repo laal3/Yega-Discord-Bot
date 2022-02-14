@@ -1,9 +1,11 @@
 from discord.ext import commands
 import os
+from dotenv import load_dotenv
 from function import write_message
 
 bot = commands.Bot(command_prefix='~')
-my_secret = os.environ['token']
+load_dotenv()
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 @bot.event
 async def on_ready():
@@ -26,4 +28,4 @@ async def play(context, *args):
   pass
 
 
-bot.run(my_secret)
+bot.run(CLIENT_SECRET)
