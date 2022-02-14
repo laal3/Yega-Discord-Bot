@@ -2,12 +2,14 @@ import re
 from youtube_dl import YoutubeDL
 import random
 
-ytdl_options = {
+FFMPEG_OPTIONS = {}
+
+YTDL_OPTIONS = {
     'format': 'bestaudio/best',
     'noplaylist': True,
 }
 
-ytdl = YoutubeDL(ytdl_options)
+ytdl = YoutubeDL(YTDL_OPTIONS)
 
 class Music(bot):
     def __init__(self, context):
@@ -55,29 +57,25 @@ class Music(bot):
         self.queue = []
 
     def remove_from_queue(remove_param):
-        if remove_param.startswith('http'):
-            try:
-                self.queue.pop(self.queue.index(remove_param))
-            except:
-                self.context.channel.send("Invalid argument")
-        elif isinstance(remove_param, int):
-            try:
-                self.queue.pop(remove_param)
-            except:
-                self.context.channel.send("Invalid argument")
+        if remove_param.startswith('http') and remove_param in self.queue:
+            self.queue.pop(self.queue.index(remove_param))
+            #TODO: Message
+        elif isinstance(remove_param, int) and remove_param - 1 > 0 and remove_param - 1 <= len(self.queue):
+            self.queue.pop(remove_param)
+            #TODO: Message
         elif remove_param == re("[0-9]+-[0-9]"):
-            try:
-                remove_range = remove_param.split("-")
+            remove_range = remove_param.split("-")
 
-                if(remove_range[0] > remove[1]):
+            if(remove_range[0] > remove[1]):
                     return false
 
-                for i in range(remove_range[0], remove_range[1]):
-                    self.queue.pop(i)
-            except:
-               self.context.channel.send("Invalid argument") 
-        else: 
-            return false
+            for i in range(remove_range[0], remove_range[1]):
+                self.queue.pop(i)
+
+            #TODO: Message
+        else:
+            #TODO: Messgae
+
             
     def disconnect():
         pass
@@ -86,16 +84,22 @@ class Music(bot):
         while self.queue:
             if not self.voice_client.is_connected():
                 self.context.channel.send("Not connected")
+                #TODO: better message
                 return
 
             if not self.channel.members:
                 self.voice_client.disconnect()
+                return
 
-            source_string = ""
+            url = ""
             if self.shuffle:
-                source_string = self.queue.pop(random.randint(0, len(self.queue)))
+                url = self.queue.pop(random.randint(0, len(self.queue)))
             else:
-                source_string = self.queue.pop()
+                url = self.queue.pop()
 
-
+            youtube_info = ytdl.extract_info(url, download=false)
+            audio_source = youtube_info['formats'][0]['url']
+            source = await discord.FFmpegOpusAudio.from_probe(I_URL, **FFMPEG_OPTIONS)
+            self.voice_client.play(source)
             
+            #TODO: Message
