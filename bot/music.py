@@ -1,6 +1,7 @@
 import re
 from youtube_dl import YoutubeDL
 import random
+import asyncio
 
 FFMPEG_OPTIONS = {}
 
@@ -18,6 +19,8 @@ class Music(bot):
         self.queue = []
         self.shuffle = false
         self.voice_client = context.voice_client
+        self.player = None
+        
 
     def play(url):
         if not self.channel:
@@ -29,20 +32,25 @@ class Music(bot):
         if self.context.voice_client.is_playing():
             self.queue.append(self.url)
         else:
-            self.player_loop(url)
+           player = asyncio.create_task(self.player_loop())
             
 
     def pause():
-        pass
+        self.voice_client.pause()
+        #TODO: Message
 
     def resume():
-        pass
+        self.voice_client.resume()
+        #TODO: Message
 
     def skip():
-        pass
+        self.player.cancel()
+        self.player = asyncio.create_task(self.player_loop())
 
     def stop():
-        pass
+        self.voice_client.stop()
+        self.queue = []
+        #TODO: Message:
 
     def shuffle_toggle():
         self.shuffle != self.shuffle
@@ -78,7 +86,10 @@ class Music(bot):
 
             
     def disconnect():
-        pass
+        self.voice_client.stop()
+        self.player.cancel()
+        self.voice_client.disconnect()
+        self.queue = []
 
     async def player_loop():
         while self.queue:
@@ -101,5 +112,4 @@ class Music(bot):
             audio_source = youtube_info['formats'][0]['url']
             source = await discord.FFmpegOpusAudio.from_probe(I_URL, **FFMPEG_OPTIONS)
             self.voice_client.play(source)
-            
             #TODO: Message
