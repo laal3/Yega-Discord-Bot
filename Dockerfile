@@ -1,8 +1,10 @@
-FROM python:3.8-buster
+FROM python:3.10-buster
 
-WORKDIR /DCBot/bot
+WORKDIR /Yega
 
-COPY requirements.txt requirements.txt
+COPY bot/requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 
-CMD [ "python3", "main.py"]
+COPY . .
+
+ENTRYPOINT [ "python", "main.py"]
