@@ -1,3 +1,6 @@
+import re
+import discord
+
 async def write_message(context, *args):
     message = str(context.message.content).split()
 
@@ -16,3 +19,10 @@ async def write_message(context, *args):
         return
 
     await channel.send(" ".join(message[2:]))
+
+def music_embed(title, duration, url, queue_length, next)
+    expression = "^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*"
+    
+    embed = discord.Embed(title=title)
+    embed.set_thumbnail(url=f"https://i.ytimg.com/vi/{re.search(expression, url)[0]}/maxresdefault.jpg)
+    
