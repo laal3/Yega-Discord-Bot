@@ -1,9 +1,9 @@
 from discord.ext import commands
 import discord
 import os
+from utils import writeMessage
 from dotenv import load_dotenv
 load_dotenv()
-from function import write_message
 
 bot = commands.Bot(command_prefix='~')
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
@@ -18,7 +18,7 @@ async def on_ready():
 async def on_message(message):
   if message.author == bot.user:
     return
-  if discord.ChannelType.private:
+  if isinstance(message.channel, discord.DMChannel):
     return
   
 
@@ -26,7 +26,7 @@ async def on_message(message):
 #~write <channel name> <message>
 @bot.command()
 async def write(context, *args):
-  await write_message(context, *args)
+  await writeMessage(context, *args)
   
 
 @bot.command()

@@ -1,7 +1,8 @@
 import re
 import discord
+#from music import ytdl
 
-async def write_message(context, *args):
+async def writeMessage(context, *args):
     message = str(context.message.content).split()
 
     if not len(message) > 2:
@@ -19,10 +20,13 @@ async def write_message(context, *args):
         return
 
     await channel.send(" ".join(message[2:]))
+    
 
-def music_embed(title, duration, url, queue_length, next)
-    expression = "^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*"
-    
-    embed = discord.Embed(title=title)
-    embed.set_thumbnail(url=f"https://i.ytimg.com/vi/{re.search(expression, url)[0]}/maxresdefault.jpg)
-    
+
+def getEstimatedTimeToPlay(queue):
+    estimated_time = 0
+    for i in queue:
+        youtube_info = ytdl.extract_info(i, download=False)
+        estimated_time += youtube_info['duration']
+
+    return estimated_time

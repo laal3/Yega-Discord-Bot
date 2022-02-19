@@ -1,7 +1,8 @@
-import re
+import discord
 from youtube_dl import YoutubeDL
 import random
 import asyncio
+import re
 
 FFMPEG_OPTIONS = {}
 
@@ -19,12 +20,12 @@ class Music(bot):
         self.channel = context.message.author.voice.channel
         self.player = None
         self.queue = []
-        self.shuffle = false
-        self.repeat = false
-        self.force_play = false
+        self.shuffle = False
+        self.repeat = False
+        self.force_play = False
 
         
-    def play(url):
+    def play(self, url):
         if not self.channel:
             self.context.channel.send("No channel to join.")
 
@@ -36,61 +37,61 @@ class Music(bot):
         else:
            player = asyncio.create_task(self.player_loop())
             
-    def pause():
+    def pause(self):
         if not self.voice_client.is_playing:
             return
 
-        await self.voice_client.pause()
+        self.voice_client.pause()
         #TODO: Message
 
-    def resume():
+    def resume(self):
         if self.voice_client.is_playing:
             return
 
-        await self.voice_client.resume()
+        self.voice_client.resume()
         #TODO: Message
 
     #Cancels the player loop and restarts it to skip the current song
-    def skip():
-        if not self.player
+    def skip(self):
+        if not self.player:
             return
         
         self.player.cancel()
         self.player = asyncio.create_task(self.player_loop())
 
-    def stop():
+    def stop(self):
         if not self.voice_client.is_playing():
             return
 
-        await self.voice_client.stop()
+        self.voice_client.stop()
         self.queue = []
         #TODO: Message:
 
-    def force_play(url):
-        if not self.player
+    def force_play(self, url):
+        if not self.player:
             return
 
-        player.cancel()
+        self.player.cancel()
         self.queue.insert(0, url)
         self.force_play = True
         self.player = asyncio.create_task(self.player_loop())     
 
-    def repeat_toggle():
+    def repeat_toggle(self):
         if self.repeat:
             self.queue.pop()
 
-        self.repeat = !self.repeat
+        self.repeat = not self.repeat
 
-    def shuffle_toggle():
-        self.shuffle = !self.shuffle
+    def shuffle_toggle(self):
+        self.shuffle = not self.shuffle
 
-    def get_queue():
+    def get_queue(self):
         return self.queue
 
-    def drop_queue():
+    def drop_queue(self):
         self.queue = []
 
-    def remove_from_queue(remove_param):
+    def remove_from_queue(self, remove_param):
         if remove_param.startswith('http') and remove_param in self.queue:
             self.queue.pop(self.queue.index(remove_param))
             #TODO: Message
@@ -104,7 +105,7 @@ class Music(bot):
             end = max(remove_range[0], remove_range[1])
 
             if start - 1 < 0 or max > len(self.queue):
-                    return false
+                    return False
 
             for i in range(start - 1, end - 1):
                 self.queue.pop(i)
@@ -114,13 +115,13 @@ class Music(bot):
             #TODO: Messgae
             pass
             
-    def disconnect():
-        await self.voice_client.stop()
+    def disconnect(self):
+        self.voice_client.stop()
         self.player.cancel()
-        await self.voice_client.disconnect()
+        self.voice_client.disconnect()
         self.queue = []
 
-    async def player_loop():
+    async def player_loop(self):
         while self.queue:
             #not connected
             if not self.voice_client.is_connected():
@@ -143,8 +144,8 @@ class Music(bot):
                 url = self.queue.pop(0)
             
 
-            youtube_info = ytdl.extract_info(url, download=false)
+            youtube_info = ytdl.extract_info(url, download=False)
             audio_source = youtube_info['formats'][0]['url']
-            source = await discord.FFmpegOpusAudio.from_probe(I_URL, **FFMPEG_OPTIONS)
+            source = await discord.FFmpegOpusAudio.from_probe(audio_source, **FFMPEG_OPTIONS)
             self.voice_client.play(source)
             #TODO: Message
