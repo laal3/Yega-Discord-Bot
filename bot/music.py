@@ -13,7 +13,7 @@ YTDL_OPTIONS = {
 
 ytdl = YoutubeDL(YTDL_OPTIONS)
 
-class Music(bot):
+class Music:
     def __init__(self, context):
         self.context = context
         self.voice_client = context.voice_client

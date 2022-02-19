@@ -18,4 +18,9 @@ async def sendPlayMessage(context, title, duration, url, queue, next_URL):
     embed.add_field(name="Estimated time until playing:", value=f"{estimated_time//3600}:{estimated_time//60}:{estimated_time%60}", inline=True)
 
     bot_message = await context.channel.send(embed=embed)
-    bot_message.add_reaction()
+    await bot_message.add_reaction("⏸")
+    await bot_message.add_reaction("▶")
+    await bot_message.add_reaction("⏩")
+    await bot_message.add_reaction("🔀")
+    await bot_message.add_reaction("🔁")
+    await bot_message.add_reaction("⛔")

@@ -1,6 +1,11 @@
-import re
-import discord
-#from music import ytdl
+from youtube_dl import YoutubeDL
+
+YTDL_OPTIONS = {
+    'format': 'bestaudio/best',
+    'noplaylist': True,
+}
+
+ytdl = YoutubeDL(YTDL_OPTIONS)
 
 async def writeMessage(context, *args):
     message = str(context.message.content).split()
