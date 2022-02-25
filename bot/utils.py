@@ -24,7 +24,7 @@ async def writeMessage(context, *args):
         await context.channel.send(f"There is no message.")
         return
 
-    await channel.send(" ".join(message[2:]))
+    ms = await channel.send(" ".join(message[2:]))
     
 
 

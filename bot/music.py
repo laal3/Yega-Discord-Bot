@@ -16,8 +16,8 @@ ytdl = YoutubeDL(YTDL_OPTIONS)
 class Music:
     def __init__(self, context):
         self.context = context
-        self.voice_client = context.voice_client
-        self.channel = context.message.author.voice.channel
+        self.voice_client = context.Voice_client
+        self.voice_channel = context.message.author.voice.channel
         self.player = None
         self.queue = []
         self.shuffle = False
@@ -26,22 +26,26 @@ class Music:
 
         
     def play(self, url):
-        if not self.channel:
+        if not self.voice_channel:
             self.context.channel.send("No channel to join.")
 
         if not self.voice_client.is_connected():
-            self.channel.connect()
+            self.voice_channel.connect()
 
         if self.context.voice_client.is_playing():
-            self.queue.append(self.url)
+            self.queue.append(url)
         else:
-           player = asyncio.create_task(self.player_loop())
+           self.player = asyncio.create_task(self.player_loop())
+        
+        self.context.channel.send("Added")
+        
             
     def pause(self):
         if not self.voice_client.is_playing:
             return
 
         self.voice_client.pause()
+        self.context.channel.send("Paused")
         #TODO: Message
 
     def resume(self):
@@ -49,6 +53,7 @@ class Music:
             return
 
         self.voice_client.resume()
+        self.context.channel.send("Resumed")
         #TODO: Message
 
     #Cancels the player loop and restarts it to skip the current song
@@ -65,6 +70,7 @@ class Music:
 
         self.voice_client.stop()
         self.queue = []
+        self.context.channel.send("Skiped")
         #TODO: Message:
 
     def force_play(self, url):
@@ -74,7 +80,8 @@ class Music:
         self.player.cancel()
         self.queue.insert(0, url)
         self.force_play = True
-        self.player = asyncio.create_task(self.player_loop())     
+        self.player = asyncio.create_task(self.player_loop())
+        self.context.channel.send("Playing with force")   
 
     def repeat_toggle(self):
         if self.repeat:
@@ -82,14 +89,24 @@ class Music:
 
         self.repeat = not self.repeat
 
+        if self.repeat:
+            self.context.channel.send("Repeat on")
+        self.context.channel.send("Repeat off")
+
     def shuffle_toggle(self):
         self.shuffle = not self.shuffle
 
+        if self.shuffle:
+            self.context.channel.send("Shuffle on")
+        self.context.channel.send("Shuffle off")
+
     def get_queue(self):
         return self.queue
+        #TODO: Message
 
     def drop_queue(self):
         self.queue = []
+        self.context.channel.send("Deleted queue")
 
     def remove_from_queue(self, remove_param):
         if remove_param.startswith('http') and remove_param in self.queue:
@@ -110,16 +127,18 @@ class Music:
             for i in range(start - 1, end - 1):
                 self.queue.pop(i)
 
-            #TODO: Message
+            self.context.channel.send("Removed")
         else:
+            self.context.channel.send("Not removed")
             #TODO: Messgae
-            pass
+            
             
     def disconnect(self):
         self.voice_client.stop()
         self.player.cancel()
         self.voice_client.disconnect()
         self.queue = []
+        self.context.channel.send("Disconnected")
 
     async def player_loop(self):
         while self.queue:
@@ -130,7 +149,7 @@ class Music:
                 return
 
             #empty channel
-            if not self.channel.members:
+            if not self.voice_channel.members:
                 self.voice_client.disconnect()
                 return
 

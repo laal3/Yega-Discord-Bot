@@ -1,4 +1,4 @@
-import imp
+import re
 from music import ytdl
 import discord
 from utils import getEstimatedTimeToPlay
@@ -18,9 +18,17 @@ async def sendPlayMessage(context, title, duration, url, queue, next_URL):
     embed.add_field(name="Estimated time until playing:", value=f"{estimated_time//3600}:{estimated_time//60}:{estimated_time%60}", inline=True)
 
     bot_message = await context.channel.send(embed=embed)
-    await bot_message.add_reaction("⏸")
-    await bot_message.add_reaction("▶")
-    await bot_message.add_reaction("⏩")
-    await bot_message.add_reaction("🔀")
-    await bot_message.add_reaction("🔁")
-    await bot_message.add_reaction("⛔")
+
+    play = "⏸"
+    pause = "▶"
+    skip = "⏩"
+    shuffle = "🔀"
+    repeat = "🔁"
+    stop = "⛔"
+
+    await bot_message.add_reaction(play)
+    await bot_message.add_reaction(pause)
+    await bot_message.add_reaction(skip)
+    await bot_message.add_reaction(shuffle)
+    await bot_message.add_reaction(repeat)
+    await bot_message.add_reaction(stop)
