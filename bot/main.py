@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 bot = commands.Bot(command_prefix='~')
-music = music.Music(bot)
+music = music.Music()
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
@@ -33,55 +33,68 @@ async def write(context, *args):
 
 @bot.command()
 async def play(context, *args):
-  music.play(args[0])
+  await music.play(context, url=args[0])
 
 @bot.command()
 async def forceplay(context, *args):
-  music.force_play(args[0])
+  await music.force_play(args[0])
 
 @bot.command()
 async def pause(context, *args):
-  music.pause()
+  await music.pause()
 
 @bot.command()
 async def resume(context, *args):
-  music.resume(args[0])
+  await music.resume()
 
 @bot.command()
 async def stop(context, *args):
-  music.stop()
+  await music.stop()
 
 @bot.command()
 async def skip(context, *args):
-  music.skip()
+  await music.skip()
 
 @bot.command()
 async def repeat(context, *args):
-  music.repeat_toggle() 
+  await music.repeat_toggle() 
 
 @bot.command()
 async def shuffle(context, *args):
-  music.shuffle_toggle()
+  await music.shuffle_toggle()
 
 @bot.command()
 async def dropQueue(context, *args):
-  music.drop_queue()
+  await music.drop_queue()
 
 @bot.command()
 async def removeFromQueue(context, *args):
-  music.remove_from_queue(args[0])
+  await music.remove_from_queue(args[0])
 
 @bot.command()
 async def disconnect(context, *args):
-  music.disconnect()
+  await music.disconnect()
 
 
 @bot.event
 async def on_reaction_add(reaction, user):
-  if user == client.user:
+  if user == bot.user:
     return
 
-  await reaction.message.edit(".")
+  if reaction.emoji == "⏸":
+    await music.pause()
+  elif reaction.emoji == "▶":
+    await music.resume()
+  elif reaction.emoji == "⏩":
+    await music.skip()
+  elif reaction.emoji == "🔀":
+    await music.shuffle_toggle()
+  elif reaction.emoji == "🔁":
+    await music.repeat_toggle()
+  elif reaction.emoji == "⛔":
+    await music.stop()
+  else:
+    await reaction.remove(user)
 
 
 bot.run(CLIENT_SECRET)

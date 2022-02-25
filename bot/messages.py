@@ -19,15 +19,15 @@ async def sendPlayMessage(context, title, duration, url, queue, next_URL):
 
     bot_message = await context.channel.send(embed=embed)
 
-    play = "⏸"
-    pause = "▶"
+    pause = "⏸"
+    play = "▶"
     skip = "⏩"
     shuffle = "🔀"
     repeat = "🔁"
     stop = "⛔"
 
-    await bot_message.add_reaction(play)
     await bot_message.add_reaction(pause)
+    await bot_message.add_reaction(play)
     await bot_message.add_reaction(skip)
     await bot_message.add_reaction(shuffle)
     await bot_message.add_reaction(repeat)
