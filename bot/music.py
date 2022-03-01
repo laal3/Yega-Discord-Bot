@@ -15,27 +15,18 @@ YTDL_OPTIONS = {
 ytdl = YoutubeDL(YTDL_OPTIONS)
 
 class Music:
-    def __init__(self):
-        self.context = None
-        self.voice_channel = None
-        self.voice_client = None
+    def __init__(self, context):
+        self.context = context
+        self.voice_channel = context.message.author.voice.channel
+        self.voice_client = discord.utils.get(context.bot.voice_clients, guild=context.guild)
         self.player = None
         self.queue = []
         self.shuffle = False
         self.repeat = False
         self.force = False
-
-    def get_context(self, context):
-        try:
-            self.context = context
-            self.voice_channel = context.message.author.voice.channel
-            self.voice_client = discord.utils.get(context.bot.voice_clients, guild=context.guild)
-        except:
-            return False
-        return True
         
-    async def play(self, context, url):
-        self.get_context(context)
+
+    async def play(self, url):
         if not self.voice_channel:
             await context.channel.send("No channel to join." + self.voice_channel)
             return

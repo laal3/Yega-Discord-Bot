@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 bot = commands.Bot(command_prefix='~')
-music = music.Music()
+music = None
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
@@ -33,7 +33,8 @@ async def write(context, *args):
 
 @bot.command()
 async def play(context, *args):
-  await music.play(context, url=args[0])
+  music = music.Music(context)
+  await music.play(url=args[0])
 
 @bot.command()
 async def forceplay(context, *args):
