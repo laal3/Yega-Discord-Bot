@@ -3,12 +3,12 @@ from discord.ext import commands
 import discord
 import os
 from utils import writeMessage
-import music
+from music import Music
 from dotenv import load_dotenv
 load_dotenv()
 
 bot = commands.Bot(command_prefix='~')
-music = None
+voice_list = {}
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
@@ -33,48 +33,130 @@ async def write(context, *args):
 
 @bot.command()
 async def play(context, *args):
-  music = music.Music(context)
-  await music.play(url=args[0])
+  if not context.message.author.voice:
+    return
+
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].play(url=args[0])
+    return
+
+  music = Music(context)
+  voice_list[channel] = music
+  await voice_list[channel].play(url=args[0])
 
 @bot.command()
 async def forceplay(context, *args):
-  await music.force_play(args[0])
+  if not context.message.author.voice:
+    return
+
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].force_play(url=args[0])
+    return
+
+  music = Music(context)
+  voice_list[channel] = music
+  await voice_list[channel].force_play(url=args[0])
 
 @bot.command()
 async def pause(context, *args):
-  await music.pause()
+  if not context.message.author.voice:
+    return
 
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].pause()
+  else:
+    await context.channel.send(f"I'm not playing yet. Please start a song first")
+  
 @bot.command()
 async def resume(context, *args):
-  await music.resume()
+  if not context.message.author.voice:
+    return
+
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].resume()
+  else:
+    await context.channel.send(f"I'm not playing yet. Please start a song first")
 
 @bot.command()
 async def stop(context, *args):
-  await music.stop()
+  if not context.message.author.voice:
+    return
+
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].stop()
+  else:
+    await context.channel.send(f"I'm not playing yet. Please start a song first")
 
 @bot.command()
 async def skip(context, *args):
-  await music.skip()
+  if not context.message.author.voice:
+    return
+
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].skip()
+  else:
+    await context.channel.send(f"I'm not playing yet. Please start a song first")
 
 @bot.command()
 async def repeat(context, *args):
-  await music.repeat_toggle() 
+  if not context.message.author.voice:
+    return
+
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].repeat_toggle()
+  else:
+    await context.channel.send(f"I'm not playing yet. Please start a song first")
 
 @bot.command()
 async def shuffle(context, *args):
-  await music.shuffle_toggle()
+  if not context.message.author.voice:
+    return
+
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].shuffle_toggle()
+  else:
+    await context.channel.send(f"I'm not playing yet. Please start a song first")
 
 @bot.command()
 async def dropQueue(context, *args):
-  await music.drop_queue()
+  if not context.message.author.voice:
+    return
+    
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].drop_queue()
+  else:
+    await context.channel.send(f"I'm not playing yet. Please start a song first")
 
 @bot.command()
 async def removeFromQueue(context, *args):
-  await music.remove_from_queue(args[0])
+  if not context.message.author.voice:
+    return
+
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].remove_from_queue(args[0])
+  else:
+    await context.channel.send(f"I'm not playing yet. Please start a song first")
 
 @bot.command()
 async def disconnect(context, *args):
-  await music.disconnect()
+  if not context.message.author.voice:
+    return
+
+  channel = str(context.message.author.voice.channel)
+  if channel in voice_list:
+    await voice_list[channel].disconnect()
+  else:
+    await context.channel.send(f"I'm not playing yet. Please start a song first")
 
 
 @bot.event
@@ -82,20 +164,32 @@ async def on_reaction_add(reaction, user):
   if user == bot.user:
     return
 
+  if not user.voice:
+    return
+
+  channel = str(user.voice.channel)
+  if not channel in voice_list:
+    return
+
   if reaction.emoji == "⏸":
-    await music.pause()
+    await voice_list[channel].pause()
   elif reaction.emoji == "▶":
-    await music.resume()
+    await voice_list[channel].resume()
   elif reaction.emoji == "⏩":
-    await music.skip()
+    await voice_list[channel].skip()
   elif reaction.emoji == "🔀":
-    await music.shuffle_toggle()
+    await voice_list[channel].shuffle_toggle()
   elif reaction.emoji == "🔁":
-    await music.repeat_toggle()
+    await voice_list[channel].repeat_toggle()
   elif reaction.emoji == "⛔":
-    await music.stop()
+    await voice_list[channel].stop()
   else:
     await reaction.remove(user)
 
+@bot.event
+async def on_voice_state_update(member, before, after):
+  if member == bot and before.channel and not after.channel:
+    voice_list.pop(str(before.channel))
+  
 
 bot.run(CLIENT_SECRET)

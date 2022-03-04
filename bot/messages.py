@@ -1,7 +1,13 @@
 import re
-from music import ytdl
+from youtube_dl import YoutubeDL
 import discord
 from utils import getEstimatedTimeToPlay
+
+YTDL_OPTIONS = {
+    'format': 'bestaudio/best',
+    'noplaylist': True,
+}
+ytdl = YoutubeDL(YTDL_OPTIONS)
 
 async def sendPlayMessage(context, title, duration, url, queue, next_URL):
     expression = "^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*"

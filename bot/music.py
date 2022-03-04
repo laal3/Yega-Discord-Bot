@@ -2,10 +2,13 @@ import multiprocessing
 import discord
 from youtube_dl import YoutubeDL
 import random
-import asyncio
 import re
+from messages import sendPlayMessage
 
-FFMPEG_OPTIONS = {}
+FFMPEG_OPTIONS = {
+    'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+    'options': '-vn'
+    }
 
 YTDL_OPTIONS = {
     'format': 'bestaudio/best',
@@ -28,7 +31,7 @@ class Music:
 
     async def play(self, url):
         if not self.voice_channel:
-            await context.channel.send("No channel to join." + self.voice_channel)
+            await self.context.channel.send("No channel to join." + self.voice_channel)
             return
 
         if self.voice_client == None:
@@ -37,8 +40,10 @@ class Music:
         if self.context.voice_client.is_playing():
             self.queue.append(url)
         else:
+            print("before")
             self.player = multiprocessing.Process(target=self.player_loop())
             self.player.start()
+            print("after")
         
         await self.context.channel.send("Added")
         
@@ -151,16 +156,21 @@ class Music:
 
     async def player_loop(self):
         while self.queue:
+            print("yee")
             #not connected
             if self.voice_client == None or not self.voice_client.is_connected():
                 await self.context.channel.send("Not connected")
                 #TODO: better message
                 return
 
+            print("1")
+
             #empty channel
             if not self.voice_channel.members:
                 await self.voice_client.disconnect()
                 return
+
+            print("2")
 
             url = ""
             if self.shuffle and not self.force_play:
@@ -171,9 +181,10 @@ class Music:
             else:
                 url = self.queue.pop(0)
             
+            print("3")
 
             youtube_info = ytdl.extract_info(url, download=False)
             audio_source = youtube_info['formats'][0]['url']
             source = await discord.FFmpegOpusAudio.from_probe(audio_source, **FFMPEG_OPTIONS)
             await self.voice_client.play(source)
-            #TODO: Message
+            sendPlayMessage(self.context, youtube_info["title"], youtube_info["duration"], url, self.queue, self.queue[0])
