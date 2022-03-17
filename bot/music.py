@@ -1,4 +1,5 @@
 import multiprocessing
+import asyncio
 import discord
 from youtube_dl import YoutubeDL
 import random
@@ -22,11 +23,11 @@ class Music:
         self.context = context
         self.voice_channel = context.message.author.voice.channel
         self.voice_client = discord.utils.get(context.bot.voice_clients, guild=context.guild)
-        self.player = None
         self.queue = []
         self.shuffle = False
         self.repeat = False
         self.force = False
+        self.youtube_info = None
         
 
     async def play(self, url):
@@ -35,43 +36,39 @@ class Music:
             return
 
         if self.voice_client == None:
-            await self.voice_channel.connect()
+            self.voice_client = await self.voice_channel.connect()
+            print(self.voice_client)
 
-        if self.context.voice_client.is_playing():
-            self.queue.append(url)
-        else:
-            print("before")
-            self.player = multiprocessing.Process(target=self.player_loop())
-            self.player.start()
-            print("after")
+        self.queue.append(url)
+        if not self.context.voice_client.is_playing():
+            await self.player_loop()
         
-        await self.context.channel.send("Added")
+        await sendPlayMessage(self.context, self.youtube_info["title"], self.youtube_info["duration"], self.youtube_info["bot_url"], self.queue)
         
             
     async def pause(self):
-        if self.voice_client == None or not self.voice_client.is_playing:
+        if not self.context.voice_client or not self.context.voice_client.is_playing():
             return
 
-        await self.voice_client.pause()
+        await self.context.voice_client.pause()
         await self.context.channel.send("Paused")
         #TODO: Message
 
     async def resume(self):
-        if self.voice_client == None or self.voice_client.is_playing:
+        if not self.context.voice_client or self.context.voice_client.is_playing:
             return
 
-        await self.voice_client.resume()
+        await self.context.voice_client.resume()
         await self.context.channel.send("Resumed")
         #TODO: Message
 
     #Cancels the player loop and restarts it to skip the current song
     async def skip(self):
-        if not self.player:
+        if not self.voice_client:
             return
         
-        self.player.terminate()
-        self.player = multiprocessing.Process(target=self.player_loop())
-        self.player.start()
+        self.voice_client.stop()
+        await self.player_loop()
         await self.context.channel.send("Skiped")
 
     async def stop(self):
@@ -84,14 +81,12 @@ class Music:
         #TODO: Message:
 
     async def force_play(self, url):
-        if not self.player:
-            return
+        if self.voice_client.is_playing():
+            self.voice_client.stop()
 
-        self.player.terminate()
         self.queue.insert(0, url)
         self.force = True
-        self.player = multiprocessing.Process(target=self.player_loop())
-        self.player.start()
+        await self.player_loop()
         await self.context.channel.send("Playing with force")   
 
     async def repeat_toggle(self):
@@ -113,7 +108,6 @@ class Music:
 
     def get_queue(self):
         return self.queue
-        #TODO: Message
 
     async def drop_queue(self):
         self.queue = []
@@ -141,15 +135,12 @@ class Music:
             await self.context.channel.send("Removed")
         else:
             await self.context.channel.send("Not removed")
-            #TODO: Messgae
-            
-            
+                    
     async def disconnect(self):
         if self.voice_client == None or not self.voice_client.is_connected():
             return
         
         await self.voice_client.stop()
-        self.player.terminate()
         await self.voice_client.disconnect()
         self.queue = []
         await self.context.channel.send("Disconnected")
@@ -183,8 +174,8 @@ class Music:
             
             print("3")
 
-            youtube_info = ytdl.extract_info(url, download=False)
-            audio_source = youtube_info['formats'][0]['url']
-            source = await discord.FFmpegOpusAudio.from_probe(audio_source, **FFMPEG_OPTIONS)
-            await self.voice_client.play(source)
-            sendPlayMessage(self.context, youtube_info["title"], youtube_info["duration"], url, self.queue, self.queue[0])
+            self.youtube_info = ytdl.extract_info(url, download=False)
+            self.youtube_info["bot_url"] = url
+            audio_source = self.youtube_info['formats'][0]['url']
+            source = discord.FFmpegPCMAudio(audio_source, **FFMPEG_OPTIONS)
+            self.voice_client.play(source)

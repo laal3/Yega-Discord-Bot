@@ -37,12 +37,10 @@ async def play(context, *args):
     return
 
   channel = str(context.message.author.voice.channel)
-  if channel in voice_list:
-    await voice_list[channel].play(url=args[0])
-    return
+  if not channel in voice_list:
+    music = Music(context)
+    voice_list[channel] = music
 
-  music = Music(context)
-  voice_list[channel] = music
   await voice_list[channel].play(url=args[0])
 
 @bot.command()
