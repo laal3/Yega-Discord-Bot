@@ -146,6 +146,9 @@ class Music:
         await self.context.channel.send("Disconnected")
 
     async def player_loop(self):
+        if not self.queue:
+            return
+
         #not connected
         if self.voice_client == None or not self.voice_client.is_connected():
             await self.context.channel.send("Not connected")
@@ -174,4 +177,4 @@ class Music:
         if not self.queue:
             self.voice_client.play(source)
         else:
-            self.voice_client.play(source, after=self.player_loop)
+            self.voice_client.play(source, after=self.player_loop(self))

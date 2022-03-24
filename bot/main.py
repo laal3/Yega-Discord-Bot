@@ -9,7 +9,7 @@ from music import Music
 
 bot = commands.Bot(command_prefix='~')
 voice_list = {}
-CLIENT_SECRET = "NzA1NDcxNDIyNDE1NTAzNTAx.XqsLdg._3ePBhpkbVfaEsNpuTC-bcysRYg"#os.getenv("CLIENT_SECRET")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
 @bot.event
