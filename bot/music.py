@@ -146,36 +146,32 @@ class Music:
         await self.context.channel.send("Disconnected")
 
     async def player_loop(self):
-        while self.queue:
-            print("yee")
-            #not connected
-            if self.voice_client == None or not self.voice_client.is_connected():
-                await self.context.channel.send("Not connected")
-                #TODO: better message
-                return
+        #not connected
+        if self.voice_client == None or not self.voice_client.is_connected():
+            await self.context.channel.send("Not connected")
+            #TODO: better message
+            return
 
-            print("1")
+        #empty channel
+        if not self.voice_channel.members:
+            await self.voice_client.disconnect()
+            return
 
-            #empty channel
-            if not self.voice_channel.members:
-                await self.voice_client.disconnect()
-                return
+        url = ""
+        if self.shuffle and not self.force_play:
+            url = self.queue.pop(random.randint(0, len(self.queue)))
+            self.force_play = False
+        elif self.repeat and not self.force_play:
+            url = self.queue[0]
+        else:
+            url = self.queue.pop(0)
 
-            print("2")
+        self.youtube_info = ytdl.extract_info(url, download=False)
+        self.youtube_info["bot_url"] = url
+        audio_source = self.youtube_info['formats'][0]['url']
+        source = discord.FFmpegPCMAudio(audio_source, **FFMPEG_OPTIONS)
 
-            url = ""
-            if self.shuffle and not self.force_play:
-                url = self.queue.pop(random.randint(0, len(self.queue)))
-                self.force_play = False
-            elif self.repeat and not self.force_play:
-                url = self.queue[0]
-            else:
-                url = self.queue.pop(0)
-            
-            print("3")
-
-            self.youtube_info = ytdl.extract_info(url, download=False)
-            self.youtube_info["bot_url"] = url
-            audio_source = self.youtube_info['formats'][0]['url']
-            source = discord.FFmpegPCMAudio(audio_source, **FFMPEG_OPTIONS)
+        if not self.queue:
             self.voice_client.play(source)
+        else:
+            self.voice_client.play(source, after=self.player_loop)
