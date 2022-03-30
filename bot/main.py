@@ -4,8 +4,8 @@ import discord
 import os
 from utils import writeMessage
 from music import Music
-#from dotenv import load_dotenv
-#load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 bot = commands.Bot(command_prefix='~')
 voice_list = {}

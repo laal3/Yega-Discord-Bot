@@ -1,6 +1,11 @@
-FROM jrottenberg/ffmpeg:latest
+FROM ubuntu:latest
+FROM jrottenberg/ffmpeg:5.0-ubuntu
 
-RUN apt-get update && apt-get install -y python3.9 python3-pip
+RUN apt-get update \
+  && apt-get install -y python3-pip python3-dev \
+  && cd /usr/local/bin \
+  && ln -s /usr/bin/python3 python \
+  && pip3 install --upgrade pip
 
 RUN mkdir /app
 ADD . /app
