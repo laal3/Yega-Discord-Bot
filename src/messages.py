@@ -44,3 +44,23 @@ async def sendPlayMessage(context, title, duration, url, queue):
     await bot_message.add_reaction(shuffle)
     await bot_message.add_reaction(repeat)
     await bot_message.add_reaction(stop)
+
+
+async def writeMessage(context, *args):
+    message = str(context.message.content).split()
+
+    if not len(message) > 2:
+        await context.channel.send(f"There's no channel named {args[0]}.")
+        return
+
+    channel = None
+    for _channel in context.guild.channels:
+        if _channel.name == args[0]:
+            channel = _channel
+            break
+
+    if not channel:
+        await context.channel.send(f"There is no message.")
+        return
+
+    ms = await channel.send(" ".join(message[2:]))

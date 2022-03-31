@@ -16,7 +16,7 @@ CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 async def on_ready():
   print("Beep Boop")
 
-#make sure the bot don't crashes because of his own messages or dm messages
+#ignore own messages
 @bot.listen('on_message')
 async def on_message(message):
   if message.author == bot.user:
@@ -25,18 +25,18 @@ async def on_message(message):
     return
 
 #repeats your message in your choosen text channel
-#~write <channel name> <message>
+#<channel_name> <message>
 @bot.command()
 async def write(context, *args):
   await writeMessage(context, *args)
-  
 
 @bot.command()
 async def play(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+
+  channel = context.message.author.voice.channel
   if not channel in voice_list:
     music = Music(context)
     voice_list[channel] = music
@@ -48,7 +48,7 @@ async def forceplay(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].force_play(url=args[0])
     return
@@ -62,7 +62,7 @@ async def pause(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].pause()
   else:
@@ -73,7 +73,7 @@ async def resume(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].resume()
   else:
@@ -84,7 +84,7 @@ async def stop(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].stop()
   else:
@@ -95,7 +95,7 @@ async def skip(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].skip()
   else:
@@ -106,7 +106,7 @@ async def repeat(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].repeat_toggle()
   else:
@@ -117,7 +117,7 @@ async def shuffle(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].shuffle_toggle()
   else:
@@ -128,7 +128,7 @@ async def dropQueue(context, *args):
   if not context.message.author.voice:
     return
     
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].drop_queue()
   else:
@@ -139,7 +139,7 @@ async def removeFromQueue(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].remove_from_queue(args[0])
   else:
@@ -150,7 +150,7 @@ async def disconnect(context, *args):
   if not context.message.author.voice:
     return
 
-  channel = str(context.message.author.voice.channel)
+  channel = context.message.author.voice.channel
   if channel in voice_list:
     await voice_list[channel].disconnect()
   else:
