@@ -1,8 +1,6 @@
 from discord.ext import commands
 import asyncio
 import discord
-import random
-import os
 from youtube_dl import YoutubeDL
 from youtube_dl import YoutubeDL
 
@@ -25,15 +23,10 @@ class Music:
         self.voice_channel = context.message.author.voice.channel
         self.voice_client = discord.utils.get(context.bot.voice_clients, guild=context.guild)
         self.queue = []
-        self.shuffle = False
-        self.repeat = False
-        self.force = False
         self.youtube_info = None
         
 
     async def play(self, url):
-        await self.context.channel.send("1")
-
         if not self.voice_channel:
             await self.context.channel.send("No channel to join." + self.voice_channel)
             return
@@ -42,45 +35,24 @@ class Music:
             self.voice_client = await self.voice_channel.connect()
             print(self.voice_client)
 
-        await self.context.channel.send("1")
-
         self.queue.append(url)
         if self.context.voice_client.is_playing():
             return
 
-        await self.context.channel.send("2")
-
         await self.player_loop()
 
 
-    async def p(self):
-        await self.context.channel.send("yee")
-
     async def player_loop(self):
-        await self.context.channel.send("3")
-
         if not self.queue:
             return
 
-        #not connected
         if self.voice_client == None or not self.voice_client.is_connected():
             await self.context.channel.send("Not connected")
-            #TODO: better message
             return
 
-        #empty channel
         if not self.voice_channel.members:
             await self.voice_client.disconnect()
             return
-
-        url = ""
-        if self.shuffle and not self.force_play:
-            url = self.queue.pop(random.randint(0, len(self.queue)))
-            self.force_play = False
-        elif self.repeat and not self.force_play:
-            url = self.queue[0]
-        else:
-            url = self.queue.pop(0)
 
         self.youtube_info = ytdl.extract_info(url, download=False)
         self.youtube_info["bot_url"] = url
@@ -94,7 +66,6 @@ bot = commands.Bot(command_prefix='~')
 voice_list = {}
 CLIENT_SECRET = "NzA1NDcxNDIyNDE1NTAzNTAx.XqsLdg.eJRkK_VsE7LpYcw4n25RXMchl5U"#os.getenv("CLIENT_SECRET")
 
-#ignore own messages
 @bot.listen('on_message')
 async def on_message(message):
     if message.author == bot.user:
@@ -115,7 +86,3 @@ async def play(context, *args):
     await voice_list[channel].play(url=args[0])
 
 bot.run(CLIENT_SECRET)
-
-
-
-
