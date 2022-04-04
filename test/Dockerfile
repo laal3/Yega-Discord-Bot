@@ -11,10 +11,10 @@ RUN mkdir /app
 ADD . /app
 WORKDIR /app
 
-COPY src/requirements.txt requirements.txt
+COPY requirements.txt requirements.txt
 RUN pip3 install -r requirements.txt
 RUN pip3 install python-dotenv
 
 COPY . .
 
-ENTRYPOINT [ "python", "src/main.py"]
+ENTRYPOINT [ "python", "test2.py"]

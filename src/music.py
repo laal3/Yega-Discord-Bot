@@ -1,5 +1,3 @@
-import multiprocessing
-import asyncio
 import discord
 from youtube_dl import YoutubeDL
 import random
