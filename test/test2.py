@@ -1,4 +1,5 @@
 from discord.ext import commands
+import asyncio
 import discord
 import random
 import os
@@ -18,7 +19,8 @@ YTDL_OPTIONS = {
 ytdl = YoutubeDL(YTDL_OPTIONS)
 
 class Music:
-    def __init__(self, context):
+    def __init__(self, context, bot):
+        self.bot = bot
         self.context = context
         self.voice_channel = context.message.author.voice.channel
         self.voice_client = discord.utils.get(context.bot.voice_clients, guild=context.guild)
@@ -30,6 +32,8 @@ class Music:
         
 
     async def play(self, url):
+        await self.context.channel.send("1")
+
         if not self.voice_channel:
             await self.context.channel.send("No channel to join." + self.voice_channel)
             return
@@ -38,15 +42,23 @@ class Music:
             self.voice_client = await self.voice_channel.connect()
             print(self.voice_client)
 
+        await self.context.channel.send("1")
+
         self.queue.append(url)
         if self.context.voice_client.is_playing():
             return
 
+        await self.context.channel.send("2")
+
         await self.player_loop()
-        
-        #await sendPlayMessage(self.context, self.youtube_info["title"], self.youtube_info["duration"], self.youtube_info["bot_url"], self.queue)
+
+
+    async def p(self):
+        await self.context.channel.send("yee")
 
     async def player_loop(self):
+        await self.context.channel.send("3")
+
         if not self.queue:
             return
 
@@ -74,13 +86,13 @@ class Music:
         self.youtube_info["bot_url"] = url
         audio_source = self.youtube_info['formats'][0]['url']
         source = discord.FFmpegPCMAudio(audio_source, **FFMPEG_OPTIONS)
-        self.voice_client.play(source, after=self.player_loop)
+        self.voice_client.play(source, after=lambda _: asyncio.run_coroutine_threadsafe(self.player_loop, self.bot.loop))
 
 
 
 bot = commands.Bot(command_prefix='~')
 voice_list = {}
-CLIENT_SECRET = ""#os.getenv("CLIENT_SECRET")
+CLIENT_SECRET = "NzA1NDcxNDIyNDE1NTAzNTAx.XqsLdg.eJRkK_VsE7LpYcw4n25RXMchl5U"#os.getenv("CLIENT_SECRET")
 
 #ignore own messages
 @bot.listen('on_message')
@@ -95,12 +107,12 @@ async def play(context, *args):
     if not context.message.author.voice:
         return
 
-
-
     channel = context.message.author.voice.channel
     if not channel in voice_list:
-        music = Music(context)
+        music = Music(context, bot)
         voice_list[channel] = music
+
+    await voice_list[channel].play(url=args[0])
 
 bot.run(CLIENT_SECRET)
 
