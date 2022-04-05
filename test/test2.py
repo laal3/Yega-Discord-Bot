@@ -64,7 +64,7 @@ class Music:
 
 bot = commands.Bot(command_prefix='~')
 voice_list = {}
-CLIENT_SECRET = "NzA1NDcxNDIyNDE1NTAzNTAx.XqsLdg.eJRkK_VsE7LpYcw4n25RXMchl5U"#os.getenv("CLIENT_SECRET")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 @bot.listen('on_message')
 async def on_message(message):

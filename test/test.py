@@ -12,4 +12,3 @@ def get_name(func):
 @get_name
 def yee():
     print(listdir(os.path.dirname("/permissions")))
-yee()
