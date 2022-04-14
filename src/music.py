@@ -60,6 +60,7 @@ class Music:
         await self.context.channel.send("Resumed")
         #TODO: Message
 
+        
     #Cancels the player loop and restarts it to skip the current song
     async def skip(self):
         if not self.voice_client:
@@ -67,17 +68,19 @@ class Music:
         
         self.voice_client.stop()
         await self.player_loop()
-        await self.context.channel.send("Skiped")
+        await self.context.channel.send("Skipped")
 
+        
     async def stop(self):
         if self.voice_client == None or not self.voice_client.is_playing():
             return
 
         await self.voice_client.stop()
         self.queue = []
-        await self.context.channel.send("Stoped")
+        await self.context.channel.send("Stopped")
         #TODO: Message:
 
+        
     async def force_play(self, url):
         if self.voice_client.is_playing():
             self.voice_client.stop()
@@ -87,6 +90,7 @@ class Music:
         await self.player_loop()
         await self.context.channel.send("Playing with force")   
 
+        
     async def repeat_toggle(self):
         if self.repeat:
             self.queue.pop()
@@ -97,6 +101,7 @@ class Music:
             await self.context.channel.send("Repeat on")
         await self.context.channel.send("Repeat off")
 
+        
     async def shuffle_toggle(self):
         self.shuffle = not self.shuffle
 
@@ -104,13 +109,16 @@ class Music:
             await self.context.channel.send("Shuffle on")
         await self.context.channel.send("Shuffle off")
 
+        
     def get_queue(self):
         return self.queue
 
+    
     async def drop_queue(self):
         self.queue = []
         await self.context.channel.send("Deleted queue")
 
+        
     async def remove_from_queue(self, remove_param):
         if remove_param.startswith('http') and remove_param in self.queue:
             self.queue.pop(self.queue.index(remove_param))
@@ -133,7 +141,8 @@ class Music:
             await self.context.channel.send("Removed")
         else:
             await self.context.channel.send("Not removed")
-                    
+        
+        
     async def disconnect(self):
         if self.voice_client == None or not self.voice_client.is_connected():
             return
@@ -143,6 +152,7 @@ class Music:
         self.queue = []
         await self.context.channel.send("Disconnected")
 
+        
     async def player_loop(self):
         if not self.queue:
             return
