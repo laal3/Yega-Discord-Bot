@@ -24,11 +24,8 @@ async def sendPlayMessage(context, title, duration, url, queue):
         embed.add_field(name="Position in queue:", value="Current", inline=True)
         embed.add_field(name="Next:", value="This is the last song :(", inline=True)
     
-    
-    
     estimated_time = getEstimatedTimeToPlay(queue)
     embed.add_field(name="Estimated time until playing:", value=f"{estimated_time//3600}:{estimated_time//60}:{estimated_time%60}", inline=True)
-
     bot_message = await context.channel.send(embed=embed)
 
     pause = "⏸"
